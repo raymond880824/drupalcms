@@ -1,0 +1,28 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "bnr-portal-drupal-container",
+	  "cpu": 200,
+      "image": "352769661256.dkr.ecr.ap-southeast-1.amazonaws.com/bnr:latest",
+      "memory": 200,
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 0,
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+	  "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "bnr-portal-drupal-task",
+          "awslogs-region": "ap-southeast-1",
+          "awslogs-stream-prefix": "bnr-service"
+        }
+      }
+    }
+  ],
+  "networkMode": "bridge",
+  "family": "bnr-portal-drupal-task"
+}
