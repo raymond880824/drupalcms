@@ -1,12 +1,20 @@
+variables:   
+REMOTE_REGISTRY: ec2-52-221-217-52.ap-southeast-1.compute.amazonaws.com 
+CURRENT_VERSION: latest
+
+
+
 build_image:
   image: docker:git
   services:
   - docker:dind
   script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com/raymond880824/wwdrupal 
+    - export AWS_ACCESS_KEY_ID=KIAI652WMPS37XYKQKQ
+    - export AWS_DEFAULT_REGION=ap-southeast-1   
+    - export AWS_SECRET_ACCESS_KEY=NbHgqK4LiesJVhiCtLvpQpG/KyNVjQyzoHEnm3p1
     - docker build -t registry.gitlab.com/raymond880824/wwdrupal .
     - docker run registry.gitlab.com/raymond880824/wwdrupal
-    - docker push registry.gitlab.com/raymond880824/wwdrupal:latest
+    - docker push $REMOTE_REGISTRY 
   only:
     - master
 
