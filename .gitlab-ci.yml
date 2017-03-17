@@ -1,55 +1,13 @@
-image: registry.gitlab.com/raymond880824/wwdrupal
+image: drupal:8.2.6
 
-stages:
-  - deploy
-  - updateService
+services:
+  - docker:dind
 
-variables:
-  REMOTE_REGISTRY: 782753663516.dkr.ecr.ap-southeast-1.amazonaws.com/tdcdrupal 
-  CURRENT_VERSION: latest
-  ECS_CLUSTER: drupalcluster
-  ECS_SERVICE: bnr-service
-  ECS_TASK_DEF: bnr-portal-drupal-task
-  
-deployLatest:
-  stage: deploy
-  tags: 
-    - docker  
-    - shared-runners-manager-1.gitlab.com  
+build:
+  stage: build
   script:
-   - export AWS_ACCESS_KEY_ID=${DEV_AWS_ACCESS_KEY_ID}
-   - export AWS_DEFAULT_REGION=${DEV_AWS_DEFAULT_REGION}
-   - export AWS_SECRET_ACCESS_KEY=${DEV_AWS_SECRET_ACCESS_KEY}
-   - docker build -t ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION .
-   - docker tag ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION $REMOTE_REGISTRY:$CURRENT_VERSION
-   - eval $(eval 'aws ecr get-login')
-   - docker push $REMOTE_REGISTRY
-   
-deployTagged:
-  stage: deploy
-  tags:
-    - docker  
-  script:
-   - docker tag ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION $REMOTE_REGISTRY:${CI_BUILD_TAG}
-   - eval $(eval 'aws ecr get-login')
-   - docker push $REMOTE_REGISTRY
-  only:
-    - tags
-    
-updateService:
-  stage: updateService
-  tags:
-    - docker  
-  script:
-   - export AWS_ACCESS_KEY_ID=${DEV_AWS_ACCESS_KEY_ID}
-   - export AWS_DEFAULT_REGION=${DEV_AWS_DEFAULT_REGION}
-   - export AWS_SECRET_ACCESS_KEY=${DEV_AWS_SECRET_ACCESS_KEY}
-   - eval $(eval 'aws ecr get-login')      
-   - aws ecs register-task-definition --cli-input-json file://${ECS_TASK_DEF}.json
-   - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $ECS_TASK_DEF
-  environment:
-    name: uat
-    url: http://ec2-52-221-253-210.ap-southeast-1.compute.amazonaws.com
-    
-#  when: manual    
-  
+    - export IMAGE_TAG=$(echo -en $CI_COMMIT_REF_NAME | tr -c '[:alnum:]_.-' '-')
+    - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:$IMAGE_TAG" .
+    - docker push "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+
