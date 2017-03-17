@@ -1,20 +1,54 @@
-variables:   
-REMOTE_REGISTRY: ec2-52-221-217-52.ap-southeast-1.compute.amazonaws.com 
-CURRENT_VERSION: latest
+image: registry.gitlab.com/raymond880824/wwdrupal
 
+stages:
+  - deploy
+  - updateService
 
-
-build_image:
-  image: docker:git
-  services:
-  - docker:dind
+variables:
+  REMOTE_REGISTRY: 782753663516.dkr.ecr.ap-southeast-1.amazonaws.com/tdcdrupal 
+  CURRENT_VERSION: latest
+  ECS_CLUSTER: drupalcluster
+  ECS_SERVICE: bnr-service
+  ECS_TASK_DEF: bnr-portal-drupal-task
+  
+deployLatest:
+  stage: deploy
+  tags:
+    - redhat-atomic  
   script:
-    - export AWS_ACCESS_KEY_ID=KIAI652WMPS37XYKQKQ
-    - export AWS_DEFAULT_REGION=ap-southeast-1   
-    - export AWS_SECRET_ACCESS_KEY=NbHgqK4LiesJVhiCtLvpQpG/KyNVjQyzoHEnm3p1
-    - docker build -t registry.gitlab.com/raymond880824/wwdrupal .
-    - docker run registry.gitlab.com/raymond880824/wwdrupal
-    - docker push $REMOTE_REGISTRY 
+   - export AWS_ACCESS_KEY_ID=${DEV_AWS_ACCESS_KEY_ID}
+   - export AWS_DEFAULT_REGION=${DEV_AWS_DEFAULT_REGION}
+   - export AWS_SECRET_ACCESS_KEY=${DEV_AWS_SECRET_ACCESS_KEY}
+   - docker build -t ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION .
+   - docker tag ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION $REMOTE_REGISTRY:$CURRENT_VERSION
+   - eval $(eval 'aws ecr get-login')
+   - docker push $REMOTE_REGISTRY
+   
+deployTagged:
+  stage: deploy
+  tags:
+    - redhat-atomic  
+  script:
+   - docker tag ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION $REMOTE_REGISTRY:${CI_BUILD_TAG}
+   - eval $(eval 'aws ecr get-login')
+   - docker push $REMOTE_REGISTRY
   only:
-    - master
-
+    - tags
+    
+updateService:
+  stage: updateService
+  tags:
+    - redhat-atomic  
+  script:
+   - export AWS_ACCESS_KEY_ID=${DEV_AWS_ACCESS_KEY_ID}
+   - export AWS_DEFAULT_REGION=${DEV_AWS_DEFAULT_REGION}
+   - export AWS_SECRET_ACCESS_KEY=${DEV_AWS_SECRET_ACCESS_KEY}
+   - eval $(eval 'aws ecr get-login')      
+   - aws ecs register-task-definition --cli-input-json file://${ECS_TASK_DEF}.json
+   - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $ECS_TASK_DEF
+  environment:
+    name: uat
+    url: http://ec2-52-221-253-210.ap-southeast-1.compute.amazonaws.com
+    
+#  when: manual    
+  

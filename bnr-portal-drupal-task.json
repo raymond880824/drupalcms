@@ -3,7 +3,7 @@
     {
       "name": "bnr-portal-drupal-container",
 	  "cpu": 200,
-      "image": "352769661256.dkr.ecr.ap-southeast-1.amazonaws.com/bnr:latest",
+      "image": "782753663516.dkr.ecr.ap-southeast-1.amazonaws.com/tdcdrupal:latest",
       "memory": 200,
       "essential": true,
       "portMappings": [
