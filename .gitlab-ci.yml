@@ -20,6 +20,7 @@ deployLatest:
    - export AWS_DEFAULT_REGION=${DEV_AWS_DEFAULT_REGION}
    - export AWS_SECRET_ACCESS_KEY=${DEV_AWS_SECRET_ACCESS_KEY}
    - whoami
+   - hostname
    - docker build -t ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION .
    - docker tag ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION $REMOTE_REGISTRY:$CURRENT_VERSION
    - eval $(eval 'aws ecr get-login')
