@@ -1,4 +1,4 @@
-image: registry.gitlab.com/raymond880824/wwdrupal
+image: src.tdc.org.hk:4567/architecture/maven-docker-aws:0.1 
 
 stages:
   - deploy
