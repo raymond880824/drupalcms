@@ -13,7 +13,7 @@ variables:
   
 deployLatest:
   stage: deploy
-  tags:
+  tags: redhat-atomic
     - shared-runners-manager-1.gitlab.com  
   script:
    - export AWS_ACCESS_KEY_ID=${DEV_AWS_ACCESS_KEY_ID}
