@@ -49,7 +49,7 @@ updateService:
    - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $ECS_TASK_DEF
   environment:
     name: uat
-    url: http://rrr.ec2-52-221-253-210.ap-southeast-1.compute.amazonaws.com
+    url: http://ec2-52-221-253-210.ap-southeast-1.compute.amazonaws.com
     
 #  when: manual    
   
