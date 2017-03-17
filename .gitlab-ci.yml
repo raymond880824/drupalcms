@@ -21,7 +21,6 @@ deployLatest:
    - export AWS_SECRET_ACCESS_KEY=${DEV_AWS_SECRET_ACCESS_KEY}
    - whoami
    - hostname
-   - sudo -u ec2-user /bin/bash
    - docker build -t ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION .
    - docker tag ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION $REMOTE_REGISTRY:$CURRENT_VERSION
    - eval $(eval 'aws ecr get-login')
