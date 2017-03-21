@@ -1,4 +1,4 @@
-image: src.tdc.org.hk:4567/architecture/maven-docker-aws:0.1 
+image: docker:latest 
 
 stages:
   - deploy
@@ -14,7 +14,7 @@ variables:
 deployLatest:
   stage: deploy
   tags:
-   - linux 
+   - redhat-atomic 
   script:
    - export AWS_ACCESS_KEY_ID=${DEV_AWS_ACCESS_KEY_ID}
    - export AWS_DEFAULT_REGION=${DEV_AWS_DEFAULT_REGION}
@@ -27,7 +27,7 @@ deployLatest:
 deployTagged:
   stage: deploy
   tags:
-    - linux
+    - redhat-atomic
   script:
    - docker tag ${CI_REGISTRY_IMAGE}:$CURRENT_VERSION $REMOTE_REGISTRY:${CI_BUILD_TAG}
    - eval $(eval 'aws ecr get-login')
@@ -38,7 +38,7 @@ deployTagged:
 updateService:
   stage: updateService
   tags:
-    - linux
+    - redhat-atomic
   script:
    - export AWS_ACCESS_KEY_ID=${DEV_AWS_ACCESS_KEY_ID}
    - export AWS_DEFAULT_REGION=${DEV_AWS_DEFAULT_REGION}
